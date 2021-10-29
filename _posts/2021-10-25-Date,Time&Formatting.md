@@ -1020,4 +1020,67 @@ GregorianCalendar gc = GregorianCalendar.from(ZonedDateTime zdt);	// static meth
 ZonedDateTime zdt4 = gc.toZonedDateTime();
 ```
 
+TemporalAdjusters
 
+자주 쓰이는 날짜 계산들을 대신 해주는 method들을 정의해 놓은 class
+
+firstDayOfNextYear() : 다음 해의 첫 날
+firstDayOfNextMonth() : 다음 달의 첫 날
+firstDayOfYear() : 올 해의 첫 날
+firstDayOfMonth() : 이번 달의 첫 날
+lastDayOfYear() : 올 해의 마지막 날
+lastDayOfMonth() : 이번 달의 마지막 날
+firstInMonth(DayOfWeek dayOfWeek) : 이번 달의 첫 번째 n요일
+lastInMonth(DayOfWeek dayOfWeek) : 이번 달의 마지막 n요일
+previous(DayOfWeek dayOfWeek) : 지난 n요일(당일 미포함)
+previousOrSame(DayOfWeek dayOfWeek) : 지난 n요일(당일 포함)
+next(DayOfWeek dayOfWeek) : 다음 n요일(당일 미포함)
+nextOrSame(DayOfWeek dayOfWeek) : 다음 n요일(당일 포함)
+dayOfWeekInMonth(int ordinal, DayOfWeek dayOfWeek) : 이번 달의 m번째 n요일
+
+필요한 경우 직접 메소드를 만들어 사용할 수 있다.
+
+```java
+LocalDate with(TemporalAdjuster adjuster);			// 실제로 사용하는 메소드
+
+@FunctionalInterface
+public interface TemporalAdjuster {
+	Temporal adjustInto(Temporal temporal);			// 구현할 부분
+}
+```
+
+adjustInto()를 직접 사용할 수도 있지만 내부적으로 사용되기 위하여 만들어진 함수이므로 with()를 사용한다.
+
+```java
+import java.time.*;
+import java.time.temporal.*;
+import static java.time.DayOfWeek.*;
+import static java.time.temporal.TemporalAdjusters.*;
+
+class DayAfterTomorrow implements TemporalAdjuster {
+	@Override
+		public Temporal adjustInto(Temporal temporal) {
+			return temporal.plus(2, ChronoUnit.DAYS);
+		}
+}
+
+class NewTimeEx3 {
+	public static void main(String[] args) {
+		LocalDate today = LocalDate.now();
+		LocalDate date = today.with(new DayAfterTomorrow());
+
+		System.out.println(today);										// 2021-10-29
+		System.out.println(date);										// 2021-10-31
+		System.out.println(today.with(firstDayOfNextMonth()));			// 2021-11-01
+		System.out.println(today.with(firstDayOfMonth()));				// 2021-10-01
+		System.out.println(today.with(lastDayOfMonth()));				// 2021-10-31
+		System.out.println(today.with(firstInMonth(TUESDAY)));			// 2021-10-05
+		System.out.println(today.with(lastInMonth(TUESDAY)));			// 2021-10-26
+		System.out.println(today.with(previous(TUESDAY)));				// 2021-10-26
+		System.out.println(today.with(previousOrSame(TUESDAY)));		// 2021-10-26
+		System.out.println(today.with(next(TUESDAY)));					// 2021-11-02
+		System.out.println(today.with(nextOrSame(TUESDAY)));			// 2021-11-02
+		System.out.println(today.with(dayOfWeekInMonth(4, TUESDAY)));	// 2021-10-26
+	}
+}
+```
