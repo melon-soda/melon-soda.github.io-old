@@ -1084,3 +1084,303 @@ class NewTimeEx3 {
 	}
 }
 ```
+
+Period, Durtaion
+
+Period : 날짜 간의 차이
+Duration : 시간 차이
+
+```java
+LocalDate date1 = LocalDate.of(2020, 1, 1);
+LocalDate date2 = LocalDate.of(2021, 12, 31);
+
+Period pe = Period.between(date1, date2);
+
+LocalTime time1 = LocalTime.of(00, 00, 00);
+LocalTime time2 = LocalTime.of(12, 34, 56);
+
+Duration du = Duration.between(time1, time);
+```
+
+get() method로 특정 field의 값을 얻을 수 있다.
+
+```java
+long year = pe.get(ChronoUnit.YEARS);
+long month = pe.get(ChronoUnit.MONTHS);
+long day = pe.get(ChronoUnit.DAYS);
+
+long sec = du.get(ChronoUnit.SECONDS);
+long nano = du.get(ChronoUnit.NANOS);
+
+int year2 = pe.getYears();
+int month2 = pe.getMonths();
+int day2 = pe.getDays();
+
+long sec2 = du.getSeconds();
+int nano2 = du.getNanos();
+```
+
+Period는 getYears(), getMonths(), getDays()만 사용 가능하고, Duration은 getSeconds(), getNano()만 사용 가능하다.
+getUnits()를 사용하면 사용 가능한 ChronoUnit의 단위를 확인할 수 있다.
+
+Duration에서 시간/분 단위를 사용하려면 LocalTime으로 변환하면 편리하다.
+
+```java
+LocalTime tmpTime = LocalTime.of(0, 0).plusSeconds(du.getSeconds());
+
+int hour = tmpTime.getHour();
+int min = tmpTime.getMinute();
+int sec = tmpTime.getSecond();
+int nano = du.getNano();
+```
+
+until()은 between()과 비슷하나 instance method이다.
+
+```java
+Period pe = today.until(otherDay);
+long dday = today.until(otherDay, ChronoUnit.DAYS);
+long sec = LocalTime.now().until(endTime,ChronoUnit.DAYS);
+```
+
+Duration과 Period에도 해당하는 of() method들이 존재한다.
+
+```java
+Period pe1 = Period.of(1, 12, 31);
+Period pe2 = Period.ofYears(2);
+Period pe3 = Period.ofMonths(3);
+Period pe4 = Period.ofWeeks(4);
+Period pe5 = Period.ofDays(5);
+
+Duration du1 = Duration.of(60, ChronoUnit.SECONDS);
+Duration du2 = Duration.ofDays(6);
+Duration du3 = Duration.ofHours(7);
+Duration du4 = Duration.ofMinutes(8);
+Duration du5 = Duration.ofSeconds(9);
+```
+
+with()을 사용하면 특정 field의 값을 변경할 수 있다.
+
+plus(), minus()와 더불어 곱셈을 지원하고, 나눗셈의 경우 Period는 지원하지 않고 Duration만 지원한다.
+
+```java
+pe = pe.plusYears(1).multipliedBy(2);
+du = du.minusHours(3).dividedBy(4);
+```
+
+isNegative()와 isZero()를 사용하며 날짜 및 시간을 비교할 때 어느쪽이 먼저인지 알아낼 수 있다.
+```java
+boolean sameDate = Period.between(date1, date2).isZero();
+boolean isBefore = Duration.between(time1, time2).isNegative();
+```
+
+negate()로 부호를 뒤집을 수 있고, Duration에서만 abs()를 사용하여 절댓값을 얻을 수 있다. Period는 지원하지 않는다.
+
+```java
+du = du.abs();
+
+/* 위와 같은 역할 */
+if(du.isNegative())
+	du = du.negated();
+
+if(pe.isNegative())
+	pe = pe.negated();
+```
+
+Period의 경우 normalized()를 사용하면 month의 값이 12를 넘지 않도록 해준다. 단, day의 경우 값이 일정하지 않기 때문에 사용해도 변화가 없다.
+
+```java
+pe = Period.of(1, 14, 40).normalized();		// 2년 2개월 40일
+```
+
+to() method를 사용하면 특정 단위로 변환할 수 있다. 해당 단위보다 작은 단위는 전부 버려진다.
+
+Period class
+
+long toTotalMonths() : 월 단위로 변환(일 단위 버림)
+
+Duration class
+
+long toDays() : 일 단위로 변환
+long toHours() : 시간 단위로 변환
+long toMinutes() : 분 단위로 변환
+long toMillis() : 밀리초 단위로 변환
+long toNanos() : 나노초 단위로 변환
+
+LocalDate는 toEpochDay()를 사용하면 Period를 사용하지 않고도 두 날짜간의 차이를 계산할 수 있다.
+LocalTime은 int toSecondOfDay(), long toNanoOfDay()를 사용하면 두 시간간의 차이를 계산할 수 있다.
+
+```java
+import java.time.*;
+import java.time.temporal.*;
+
+class NewTimeEX4 {
+	public static void main(String[] args) {
+		LocalDate date1 = LocalDate.of(2014, 1, 1);
+		LocalDate date2 = LocalDate.of(2015, 12, 31);
+
+		Period pe = Period.between(date1, date2);
+
+		System.out.println("date1 = " + date1);
+		System.out.println("date2 = " + date2);
+		System.out.println("pe = " + pe);
+
+		System.out.println("YEAR = " + pe.get(ChronoUnit.YEARS));
+		System.out.println("MONTH = " + pe.get(ChronoUnit.MONTHS));
+		System.out.println("DAY = " + pe.get(ChronoUnit.DAYS));
+
+		LocalTime time1 = LocalTime.of(0, 0, 0,);
+		LocalTime time2 = LocalTime.of(12, 34, 56);
+
+		Duration du = Duration.between(time1, time2);
+
+		System.out.println("time1 = " + time1);
+		System.out.println("time2 = " + time2);
+		System.out.println("du = " + du);
+
+		LocalTime tmpTime = LocalTime.of(0, 0).plusSeconds(du.getSeconds());
+
+		System.out.println("HOUR = " + tmpTime.getHour());
+		System.out.println("MINUTE = " + tmpTime.getMinute());
+		System.out.println("SECOND = " + tmpTime.getSecond());
+		System.out.println("NANO = " + tmpTime.getNano());
+	}
+}
+```
+
+DateTimeFormatter
+
+format()을 사용하여 원하는 형태로 출력할 수 있다.
+format()은 DateTime 뿐만 아니라 LocalDate와 LocalTime에도 존재하므로 어느 쪽을 사용해도 상관없다.
+
+ISO\_DATE\_TIME : Date and time with ZoneId
+ISO\_LOCAL\_DATE : ISO Local Date
+ISO\_LOCAL\_TIME : Time without offset
+ISO\_LOCAL\_DATE\_TIME : ISO Local Date and Time
+ISO\_OFFSET\_DATE : ISO Date with offset
+ISO\_OFFSET\_TIME : Time with offset
+ISO\_OFFSET\_DATE\_TIME : Time with offset
+ISO\_ZONED\_DATE\_TIME : Date Time with offset
+ISO\_INSTANT : Zoned Date Time
+BASIC\_ISO\_DATE : Basic ISO Date
+ISO\_DATE : ISO Date with or without offset
+ISO\_TIME : Time with or without offset
+ISO\_ORDINAL\_DATE : Year and day of Year
+ISO\_WEEK\_DATE : Year and Week
+RFC\_1123\_DATE\_TIME : RFC 1123 / RFC 822
+
+ofLocalizedDate() / ofLocalizedTime(), ofLocalizedDateTime() : locale에 종속적인 formatter
+
+FULL : 2021년 11월 1일 월요일 / (N/A)
+LONG : 2021년 11월 1일 (월)   / 오후 4시 1분 10초
+MEDIUM : 2021. 11. 1		  / 오후 4:01:10
+SHORT : 21. 11. 1			  / 오후 4:01
+
+```java
+DateTimeFormatter formatter1 = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+DateTimeFormatter formatter2 = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
+DateTimeFormatter formatter3 = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+DateTimeFormatter formatter4 = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+
+String fullFormat = formatter1.format(LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul")));
+/* LocalDateTime은 now()만 사용하면 ZoneId를 추출하지 목해 DateTimeException이 발생한다. */
+String longFormat = formatter2.format(LocalDate.now());
+String mediumFormat = formatter3.format(LocalDate.now());
+String shortFormat = formatter4.format(LocalDate.now());
+```
+
+ofPattern()을 사용하면 원하는 출력 형식을 지정할 수 있다.
+
+G : 연대(BC/AD)
+y, u : 년도
+M, L : 월
+Q, q : 분기
+w : 년의 w번째 주(1~53)
+W : 월의 W번째 주(1~5)
+D : 년의 D번째 일(1~366)
+d : 월의 d번째 일(1~31)
+F : 월의 F번째 요일(1~5)
+E, e : 요일
+a : 오전/오후 (AM/PM)
+H : 시간(0~23)
+k : 시간(1~24)
+K : 시간(0~11)
+h : 시간(1~12)
+m : 분(0~59)
+s : 초(0~59)
+S : 밀리초(0~999)
+A : 밀리초(당일의 00:00:00부터의 시간)
+n : 나노초(0~999999999)
+N : 나노초(당일의 00:00:00부터의 시간)
+V : 시간대 ID(VV)
+z : Time Zone 이름
+O : localized zone-offset
+Z : zone-offset(+00:00)
+X, x : zone-offset(+00)
+\' : escape 문자
+
+```java
+import java.time.*;
+import java.time.format.*;
+
+class DateFormatterEx1 {
+	public static void main(String[] args) {
+		ZonedDateTime zDateTime = ZonedDateTime.now();
+
+		String[] patterArr = {
+			"yyyy-MM-dd HH:mm:ss",
+			"''yy년 MMM dd일 E요일",
+			"yyyy-MM-dd HH:mm:ss.SSS Z VV",
+			"yyyy-MM-dd hh:mm:ss a",
+			"오늘은 올 해의 D번째 날입니다.",
+			"오늘은 이 달의 d번째 날입니다.",
+			"오늘은 올 해의 w번째 주입니다.",
+			"오늘은 이 달의 W번째 주입니다.",
+			"오늘은 이 달의 W번째 E요일입니다."
+		};
+
+		for(String p : patternArr) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(p);
+			System.out.println(zDateTime.format(formatter));
+		}
+	}
+}
+```
+
+문자열을 날짜 및 시간으로 변환하려면 parse()를 사용한다.
+
+static LocalDateTime parse(CharSequence text)
+static LocalDateTime parse(CharSequence text, DateTimeFormatter formatter)
+
+기본적인 형식의 문자열은 DateTimeFormatter을 사용하지 않고도 parsing이 가능하다.
+
+LocalDate newDate = LocalDate.parse("2021-11-01");
+LocalTime newTime = LocalTime.parse("16:35:30");
+LocalDateTime newDateTime = LocalDateTime.parse("2021-11-01T16:35:30");
+
+ofPattern()으로도 parsing이 가능하다.
+
+DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-DD HH:mm:ss");
+LocalDateTime endOfYear = LocalDateTime.parse("2021-11-01 16:35:30", pattern);
+
+```java
+import java.time.*;
+import java.time.format.*;
+
+class DateFormatterEx2 {
+	public static void main(String[] args) {
+		LocalDate newYear = LocalDate.parse("2021-01-01", DateTimeFormatter.ISO_LOCAL_DATE);
+		LocalDate date = LocalDate.parse("2001-01-01");
+		LocalTime time = LocalTime.parse("23:59:59");
+		LocalDateTime dateTime = LocalDateTime.parse("2001-01-01T23:59:59");
+
+		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime endOfYear = LocalDateTime.parse("2021-12-31 23:59:59", pattern);
+
+		System.out.println(newYear);		// 2021-01-01
+		System.out.println(date);			// 2001-01-01
+		System.out.println(time);			// 23:59:59
+		System.out.println(dateTime);		// 2001-01-01T23:59:59
+		System.out.println(endOfYear);		// 2021-12-31T23:59:59
+	}
+}
+```
