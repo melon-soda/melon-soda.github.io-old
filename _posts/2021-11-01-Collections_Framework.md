@@ -623,3 +623,396 @@ Object removeFirst() : LinkedList의 첫 번째 요소를 제거하고 반환
 Object removeLast() : LinkedList의 마지막 요소를 제거하고 반환
 boolean removeFirstOccurrence(Object o) : LinkedList에서 첫 번째로 일치하는 요소 제거
 boolean removeLastOccurrence(Object o) : LinkedList에서 마지막으로 일치하는 요소 제거
+
+```java
+import java.util.*;
+
+public class ArrayListLinkedListTest {
+	public static void main(String[] args) {
+		ArrayList al = new ArrayList(2000000);
+		LinkedList ll = new LinkedList();
+
+		System.out.println("= 순차적으로 추가하기 =");
+		System.out.println("ArrayList : " + add1(al));
+		System.out.println("LinkedList : " + add1(ll));
+		System.out.println();
+		System.out.println("= 중간에 추가하기 =");
+		System.out.println("ArrayList : " + add2(al));
+		System.out.println("LinkedList : " + add2(ll));
+		System.out.println();
+		System.out.println("= 중간에서 삭제하기 =");
+		System.out.println("ArrayList : " + remove2(al));
+		System.out.println("LinkedList : " + remove2(ll));
+		System.out.println();
+		System.out.println("= 순차적으로 삭제하기 =");
+		System.out.println("ArrayList : " + remove1(al));
+		System.out.println("LinkedList : " + remove1(ll));
+	}
+
+	public static long add1(List list) {
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < 1000000; i++)
+			list.add(i + "");
+		long end = System.currentTImeMillis();
+
+		return end - start;
+	}
+
+	public static long add2(List list) {
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < 10000; i++)
+			list.add(500, "X");
+		long end = System.currentTImeMillis();
+
+		return end - start;
+	}
+
+	public static long remove1(List list) {
+		long start = System.currentTimeMillis();
+		for(int i = list.size() - 1; i >= 0; i--)
+			list.remove(i);
+		long end = System.currentTImeMillis();
+
+		return end - start;
+	}
+
+	public static long remove2(List list) {
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < 10000; i++)
+			list.remove(i);
+		long end = System.currentTImeMillis();
+
+		return end - start;
+	}
+}
+```
+
+순차적인 추가/삭제 : ArrayList가 빠름
+중간 데이터의 추가/삭제 : LinkedList가 빠름
+
+```java
+import java.util.*;
+
+public class ArrayListLinkedListTest2 {
+	public static void main(String[] args) {
+		ArrayList al = new ArrayList(1000000);
+		LinkedList ll = new LinkedList();
+		add(al);
+		add(ll);
+
+		System.out.println("= 접근시간 테스트 =");
+		System.out.println("ArrayList : " + access(al));
+		System.out.println("LinkedList : " + access(ll));
+	}
+
+	public static void add(List list) {
+		for(int i = 0; i < 100000; i++)
+			list.add(i + "");
+	}
+
+	public static long access(List list) {
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < 10000; i++)
+			list.get(i);
+		long end = System.currentTimeMillis();
+
+		return end - start;
+	}
+}
+```
+
+Array의 경우 Array의 addres + n * (size of data)로 쉽게 주소를 알아낼 수 있어 데이터 접근이 빠르다.
+LinkedList의 경우 해당 값을 찾을 때 까지 탐색해야 하기 때문에 접근이 느리다.
+
+data의 갯수가 변하지 않는 경우 -> ArrayList
+data의 갯수가 변경이 잦음 -> LinkedList
+
+Collection Framework에 속한 class 끼리는 변환이 대부분 가능하므로 서로 변환해 가면서 사용하면 효율적으로 연산이 가능하다.
+
+Stack / Queue
+
+Stack : LIFO(Last In First Out)
+Queue : FIFO(First In First Out)
+
+Stack은 순차적으로 data를 추가/삭제하므로 ArrayList로 구현하는 것이 적합
+Queue는 처음 추가된 data를 가장 먼저 삭제하므로 LinkedList로 구현하는 것이 적합
+
+Stack에 정의되어 있는 method들
+
+boolean empty() : Stack이 비어있으면 true
+Object peek() : Stack의 맨 위에 저장된 객체를 반환, Stack이 비어있다면 EmptyStackException 발생
+Object pop() : Stack의 맨 위에 저장된 객체를 꺼내고 반환, Stack이 비어있다면 EmptyStackException 발생
+Object push(Object item) : Stack에 item 저장
+int search(Object o) : Stack에서 o가 존재하는 index 반환, 찾지 못하면 -1 반환
+
+Queue에 정의되어 있는 method들
+
+boolean add(Object o) : Queue에 o 저장, 성공시 true 반환, 저장공간이 부족하면 IllegalStateException 발생
+Object remove() : Queue에서 객체를 꺼내고 반환, Queue가 비어있다면 NoSuchElementException 발생
+Object element() : Queue에서 객체를 꺼내지 않고 반환, Queue가 비어있다면 NoSuchElementException 발생
+boolean offer(Object o) : Queue에 o 저장, 성공시 true 반환
+Object poll() : Queue에서 객체를 꺼내고 반환, Queue가 비어있다면 null 반환
+Object peek() : Queue에서 객체를 꺼내지 않고 반환, Queue가 비어있다면 null 반환
+
+```java
+import java.util.*;
+
+class StackQueueEx {
+	public static void main(String[] args) {
+		Stack st = new Stack();
+		Queue q = new LinkedList();
+
+		st.push("0");
+		st.push("1");
+		st.push("2");
+
+		q.offer("0");
+		q.offer("1");
+		q.offer("2");
+
+		System.out.println("= Stack =");
+
+		while(!st.empty()) {
+			System.out.println(st.pop());
+		}
+
+		System.out.println("= Queue =");
+
+		while(!q.isEmpty()) {
+			System.out.println(q.poll);
+		}
+	}
+}
+```
+
+```java
+import java.util.*;
+
+class MyStack extends Vector {
+	public Object push(Object item) {
+		addElement(item);
+		return item;
+	}
+
+	public Object pop() {
+		Object obj = peek();
+		removeElementAt(size() - 1);
+
+		return obj;
+	}
+
+	public Object peek() {
+		int len = size();
+
+		if(len == 0)
+			throw new EmptyStackException();
+
+		return elementAt(len - 1);
+	}
+
+	public boolean empty() {
+		return size() == 0;
+	}
+
+	public int search(Object o) {
+		int i = lastIndexOf(o);
+
+		if(i >= 0) {
+			return size() - i;
+		}
+
+		return -1;
+	}
+
+}
+```
+
+```java
+import java.util.*;
+
+public class StackEx1 {
+	public static Stack back = new Stack();
+	public static Stack forward = new Stack();
+
+	public static void main(String[] args) {
+		goURL("1.First");
+		goURL("2.Second");
+		goURL("3.Third");
+		goURL("4.Fourth");
+
+		printStatus();
+
+		goBack();
+		System.out.println("= back =");
+		printStatus();
+
+		goBack();
+		System.out.println("= back =");
+		printStatus();
+
+		goForward();
+		System.out.println("= forward =");
+		printStatus();
+
+		goURL("n.nth");
+		System.out.println("= new URL =");
+		printStatus();
+	}
+
+	public static void printStatus() {
+		System.out.println("back : " + back);
+		System.out.println("forward : " + forward);
+		System.out.println("current : " + back.peek());
+		System.out.println();
+	}
+
+	public static void goURL(String url) {
+		back.push(url);
+
+		if(!forward.empty())
+			forward.clear();
+	}
+
+	public static void goForward() {
+		if(!forward.empty())
+			back.push(forward.pop());
+	}
+
+	public static void goBack() {
+		if(!back.empty())
+			forward.push(back.pop());
+	}
+}
+```
+
+```java
+import java.util.*;
+
+public class ExpValidCheck {
+	public static void main(String[] args) {
+		if(args.length != 1) {
+			System.out.println("Usage : java ExpValidCheck \\"EXPRESSION\\"");
+			System.out.println("Example : java ExpValidCheck \\"((2+3)*1)+3\\"");
+			System.exit(0);
+		}
+
+		Stack st = new Stack();
+		String expression = args[0];
+
+		System.out.println("expression : " + expression);
+
+		try {
+			for(int i = 0; i < expression.length(); i++) {
+				char ch = expression.charAt(i);
+
+				if(ch == '(') {
+					st.push(ch + "");
+				} else if(ch == ')') {
+					st.pop();
+				}
+			}
+
+			if(st.isEmpty()) {
+				System.out.println("괄호가 일치합니다.");
+			} else if(ch == ')') {
+				System.out.println("괄호가 일치하지 않습니다.");
+			}
+		} catch(EmptyStackExpcetion e) {
+			System.out.println("괄호가 일치하지 않습니다.");
+		}
+	}
+}
+```
+
+```java
+import java.util.*;
+
+class QueueEx1 {
+	static Queue q = new LinkedList();
+	static final int MAX_SIZE = 5;
+
+	public static void main(String[] args) {
+		System.out.println("help를 입력하면 도움말을 볼 수 있습니다.");
+
+		while(true) {
+			System.out.print(">>");
+
+			try {
+				Scanner s = new Scanner(System.in);
+				String input = s.nextLine().trim();
+
+				if("".equals(input))
+					continue;
+
+				if(input.equalsIgnoreCase("q")) {
+					System.exit(0);
+				} else if(input.equalsIgnoreCase("help")) {
+					System.out.println(" help - 도움말을 보여줍니다.");
+					System.out.println(" q 또는 Q - 프로그램을 종료합니다.");
+					System.out.println(" history - 최근에 입력한 명령어를 " + MAX_SIZE + "개 보여줍니다.");
+				} else if(input.equalsIgnoreCase("history")) {
+					int i = 0;
+					save(input);
+
+					LinkedList tmp = (LinkedList)q;
+					ListIterator it = tmp.listIterator();
+
+					while(it.hasNext())
+						System.out.println(++i + "." + it.next());
+				} else {
+					save(input);
+					System.out.println(input);
+				}		
+			} catch(Exception e) {
+				System.out.println("입력 오류 입니다.");
+			}	
+		}
+	}
+
+	public static void save(String input) {
+		if(!"".equals(input))
+			q.offer(input);
+
+		if(q.size() > MAX_SIZE)
+			q.remove();
+	}
+}
+```
+
+PriorityQueue
+
+저장 순서와 관계 없이 priority가 높은 순서대로 꺼내며, null은 저장할 수 없다(NullPointException 발셍).
+저장 공간으로 array를 사용하며, 각 요소를 heap으로 저장하여 가장 큰 값이나 가장 작은 값을 빠르게 찾을 수 있다.
+
+```java
+import java.util.*;
+
+class PriorityQueueEx {
+	public static void main(String[] args) {
+		Queue pq = new PriorityQueue();
+		pq.offer(3);
+		pq.offer(1);
+		pq.offer(5);
+		pq.offer(2);
+		pq.offer(4);
+
+		System.out.println(pq);				// [1, 2, 5, 3, 4]
+
+		Object obj = null;
+
+		while((obj = pq.poll()) != null)
+			System.out.println(obj);		// 1 2 3 4 5
+	}
+}
+```
+
+Deque(Double-Ended Queue)
+
+양쪽 끝에 추가/삭제가 가능한 Queue
+Stack으로도 사용 가능하고, Queue로도 사용 가능하다.
+
+Iterator
+
+Collection에 저장된 각 요소에 접근하는 기능을 가진 Interface
+
+
