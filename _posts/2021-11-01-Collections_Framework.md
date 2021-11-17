@@ -1255,7 +1255,7 @@ import java.util.*;
 class ArraysEx {
 	public static void main(String[] args) {
 		int[] arr = {0, 1, 2, 3, 4};
-		int[][] arr2D = {{11, 12, 13}, {21, 22, 23}};
+		int[][] arr2D = { {11, 12, 13}, {21, 22, 23} };
 
 		System.out.println("arr = " + Arrays.toString(arr));
 		System.out.println("arr2D = " + Arrays.deepToString(arr2D));
@@ -1285,8 +1285,8 @@ class ArraysEx {
 			System.out.println(new String(graph) + i);
 		}
 
-		String[][] str2D = new String[][]{{"aaa", "bbb"}, {"AAA", "BBB"}};
-		String[][] str2D2 = new String[][]{{"aaa", "bbb"}, {"AAA", "BBB"}};
+		String[][] str2D = new String[][]{ {"aaa", "bbb"}, {"AAA", "BBB"} };
+		String[][] str2D2 = new String[][]{ {"aaa", "bbb"}, {"AAA", "BBB"} };
 
 		System.out.println(Arrays.equals(str2D, str2D2));		// false
 		System.out.println(Arrays.deepEquals(str2D, str2D2));	// true
@@ -2030,6 +2030,272 @@ class TreeMapEx1 {
 		}
 
 		return new String(bar);
+	}
+}
+```
+
+Properties
+
+HashTable을 상속받아 구현한 것으로, (String, String)의 행태로 저장
+주로 application의 환경설정과 관련된 property를 저장하는데 사용
+
+Properties에 정의되어 있는 method들
+
+Properties() : Properties 객체 생성
+Properties(Properties defaults) : Properties default에 저장된 목록을 가진 Properties 객체 생성
+String getProperty(String key) : String key의 value 반환
+String getProperty(String key, String defaultValue) : String key의 value반환, key가 없으면 defaultValue 반환
+void list(PrintStream out) : PrintStream out에 저장된 목록 출력
+void list(PrintWriter out) : PrintWriter out에 저장된 목록 출력
+void load(InputStream inStream) : InputStream inStream으로부터 목록을 읽어 저장
+void load(Reader reader) : Reader reader로부터 목록을 읽어 저장
+void loadFromXML(InputStream in) : InputStream in으로부터 XML 문서를 읽고, XML문서에 저장된 목록을 읽어서 저장
+Enumeration propertyNames() : Properties의 모든 key가 담긴 Enumeration 반환
+void save(OutputStream out, String header) : deprecated. store() 사용
+Object setProperty(String key, String value) : key-value pair 저장
+void store(OutputStream out, String comments) : 저장된 목록을 OutputStream에 출력, comments는 주석으로 저장
+void store(Writer writer, String comments) : 저장된 목록을 Writer에 출력, comments는 주석으로 저장
+void storeToXML(OutputStream os, String comment) : 저장된 목록을 OutputStream에 XML파일로 출력, comment는 주석으로 저장
+void storeToXML(OutputStream os, String comment, String encoding) : 저장된 목록을 encoding 인코딩으로 XML파일로 출력, comment는 주석으로 저장
+Set stringPropertyNames() : Properties에 저장되어있는 모든 key를 Set에 담아 저장
+
+```java
+import java.util.*;
+
+class PropertiesEx1 {
+	public static void main(String[] args) {
+		Properties prop = new Properties();
+
+		prop.setProperty("timeout", "20");
+		prop.setProperty("language", "kr");
+		prop.setProperty("size", "10");
+		prop.setProperty("capacity", "10");
+
+		Enumeration e = prop.propertyNames();
+
+		while(e.hasMoreElements()) {
+			String element = (String)e.nextElement();
+			System.out.println(element + " = " + prop.getProperty(element));
+		}
+
+		System.out.println();
+		prop.setProperty("size", "20");
+		System.out.println("size = " + prop.getProperty("size"));
+		System.out.println("capacity = " + prop.getProperty("capacity", "20"));
+		System.out.println("loadfactor = " + prop.getProperty("loadfactor", "0.75"));
+		System.out.println(prop);
+		prop.list(System.out);
+	}
+}
+```
+
+```java
+import java.io.*;
+import java.util.*;
+
+class PropertiesEx2 {
+	public static void main(String[] args) {
+		if(args.length != 1) {
+			System.out.println("USAGE : java PropertiesEx2 INPUTFILENAME");
+			System.exit(0);
+		}
+
+		Properties prop = new Properties();
+
+		String inputFile = args[0];
+
+		try {
+			prop.load(new FileInputStream(inputFile));
+		} catch(IOException e) {
+			System.out.println("지정된 파일을 찾을 수 없습니다.");
+			System.exit(0);
+		}
+
+		String name = prop.getProperty("name");
+
+		/* 한글 문자가 포함될 경우 */
+		/*
+		   try {
+			name = new String(name.getBytes("8859_1"), "EUC-KR");	// windows
+			name = new String(name.getBytes("8859_1"), "UTF-8");	// macOS
+			} catch(Exception e) {
+			e.printStackTrace();
+			}
+		*/
+
+
+		String[] data = prop.getProperty("data").split(",");
+		int max = 0, min = 0;
+		int sum = 0;
+
+		for(int i = 0; i < data.length; i++) {
+			int intValue = Integer.parseInt(data[i]);
+
+			if(i == 0)
+				max = min = intValue;
+
+			if(max < intValue)
+				max = intValue;
+
+			else if(min > intValkue)
+				min = intValue;
+
+			sum += intValue;
+		}
+
+		System.out.println("이름 : " + name);
+		System.out.println("최대값 : " + max);
+		System.out.println("최소값 : " + min);
+		System.out.println("합계 : " + sum);
+		System.out.println("평균 : " + (sum * 100.0 / data.length)/100);
+	}
+}
+```
+
+```java
+import java.util.*;
+import java.io.*;
+
+class PropertiesEx3 {
+	public static void main(String[] args) {
+		Properties prop = new Properties();
+
+		prop.setProperty("timeout", "30");
+		prop.setProperty("language", "한글");
+		prop.setProperty("size", "10");
+		prop.setProperty("capacity", "10");
+
+		try {
+			prop.store(new FileOutputStream("output.txt"), "Properties Example");
+			prop.storeToXML(new FileOutputStream("output.xml"), "Properties Example");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+```java
+import java.util.*;
+
+class PropertiesEx4 {
+	public static void main(String[] args) {
+		Properties sysProp = System.getProperties();
+		System.out.println("java.version : " + sysProp.getProperty("java.version"));
+		System.out.println("user.language : " + sysProp.getProperty("user.language"));
+
+		sysProp.list(System.out);
+	}
+}
+```
+
+Collections class
+
+Collection과 관련된 method 제공
+
+synchronized : 여러 thread가 동시에 접근하는 경우 데이터의 일관성을 유지하기 위해 동기화가 필요
+Vector, HashTable과 같은 class들은 자체적으로 동기화 처리가 되어 있으나 multi-threaded 프로그램이 아닌 경우 역으로 성능을 떨어뜨린다.
+ArrayList, HashMap과 같은 나중에 나온 class들은 동기화를 자체적으로 처리하지 않고 필요한 경우에만 Collections class에서 동기화 method를 사용하도록 바뀌었다.
+
+static Collection synchronizedCollection(Collection c)
+static List synchronizedList(List list)
+static Set synchronizedSet(Set set)
+static Map synchronizedMap(Map map)
+static SortedSet synchronizedSortedSet(SortedSet s)
+static SortedMap synchronizedSortedMap(SortedMap m)
+
+List syncList = Collection.synchronizedList(new ArrayList(...));
+
+unmodifiable : Collection에 저장된 데이터를 보호하기 위해서 읽기 전용으로 만드는 경우
+
+static Collection unmodifiableCollection(Collection c)
+static List unmodifiableList(List list)
+static Set unmodifiableSet(Set s)
+static Map unmodifiableMap(Map m)
+static NavigableSet unmodifiableNavigableSet(NavigableSet s)
+static SortedSet unmodifiableSortedSet(SortedSet s)
+static NavigableMap unmodifiableNavigableMap(NavigableMap m)
+static SortedMap unmodifiableSortedMap(SortedMap m)
+
+singleton : 하나의 객체만을 저장하는 Collection
+반환된 Collection은 변경할 수 없다.
+
+static List singletonList(Object o)
+static Set singleton(Object o)
+static Map singletonMap(Object key, Object value)
+
+checked : 한 종류의 객체만 저장할 수 있도록 제한할 수 있다.
+generics를 통해 간단히 할 수 있지만 호환성을 위해 남겨둔 class
+JDK 1.5 이전에는 generics가 없었으므로 필요한 경우가 있다.
+
+static Collection checkedCollection(Collection c, Class type)
+static List checkedList(List list, Class type)
+static Set checkedSet(Set s, Class Type)
+static Map checkedMap(Map m, Class keyType, Class valueType)
+static Queue checkedQueue(Queue queue, Class Type)
+static NavigableSet checkedNavigableSet(NavigableSet s, Class type)
+static SortedSet checkedSortedSet(SortedSet s, Class type)
+static NavigableMap checkedNavigableMap(NavigableMap m, Class keyType, Class valueType)
+static SortedMap checkedSortedMap(SortedMap m, Class keyType, Class valueType)
+
+List list = new ArrayList();
+List checkedList = checkedList(list, Stirng.class);
+checkedList.add("abc");				// OK
+checkedList.add(new Integer(3));	// ERROR
+
+```java
+import java.util.*;
+import static java.util.Collections.*;
+
+class CollectionsEx {
+	public static void main(String[] args) {
+		List list = new ArrayList();
+		System.out.println(list);
+
+		addAll(list, 1, 2, 3, 4, 5);
+		System.out.println(list);		// [1, 2, 3, 4, 5]
+
+		rotate(list, 2);				// 오른쪽으로 2칸씩 이동
+		System.out.println(list);		// [4, 5, 1, 2, 3]
+
+		swap(list, 0, 2);				// list[0]과 list[2]를 swap
+		System.out.println(list);		// [1, 5, 4, 2, 3]
+
+		shuffle(list);					// shuffle
+		System.out.println(list);		// random
+
+		sort(list, reverseOrder());		// 역순으로 정렬 : reverse(list);와 동일
+		System.out.println(list);		// [5, 4, 3, 2, 1]
+
+		sort(list);						// 정렬
+		System.out.println(list);		// [1, 2, 3, 4 ,5]
+
+		int idx = binarySearch(list, 3);				// 3이 저장된 위치 반환
+		System.out.println("index of 3 = " + idx);		// index of 3 = 2
+
+		System.out.println("max = " + max(list));					// max = 5
+		System.out.println("min = " + min(list));					// min = 1
+		System.out.println("min = " + max(list, reverseOrder()));	// min = 1
+
+		fill(list, 9);									// list를 9로 채운다
+		System.out.println("list = " + list);			// [9, 9, 9, 9, 9]
+
+		List newList = nCopies(list.size(), 2);			// list와 같은 크기의 newList 생성하고 2로 채움
+		System.out.println("newList = " + newList);		// [2, 2, 2, 2, 2]
+
+		System.out.println(disjoint(list, newList));	// 공통요소가 없으면 true
+
+		copy(list, newList);							// list에 newList를 복사해서 넣기
+		System.out.println("newList = " + newList);		// [2, 2, 2, 2, 2]
+		System.out.println("list = " + list);			// [2, 2, 2, 2, 2]
+
+		replaceAll(list, 2, 1);							// list의 모든 2를 1로 교체
+		System.out.println("list = " + list);			// [1, 1, 1, 1, 1]
+
+		Enumeration e = enumeration(list);
+		ArrayList list2 = list(e);
+
+		System.out.println("list2 = " + list2);
 	}
 }
 ```
