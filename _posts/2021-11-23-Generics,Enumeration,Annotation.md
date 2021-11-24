@@ -901,3 +901,454 @@ class EnumEx4 {
 	}
 }
 ```
+
+Annotation
+
+Source code 안에 다른 프로그램을 위한 정보를 미리 약속된 형식으로 포함시킨 것
+
+표준 Annotation
+
+@Override : compiler에게 overriding하는 method라는 것을 알림
+@Deprecated : 앞으로 사용하지 않을 것을 권장하는 대상
+@SuppressWarnings : compiler의 특정 결고 메시지가 나타나지 않도록 함
+@SafeVarargs : generics type의 가변인자에 사용
+@FunctionalInterface : 함수형 interface임을 알림
+@Native : native method에서 참조되는 상수 앞에 붙임
+
+표준 Annotation - meta Annotation
+
+@Target : Annotation이 적용 가능한 대상을 지정
+@Documented : Annotation 정보가 javadoc으로 작성된 문서에 포함되도록 함
+@Inherited : Anootation이 자손 class에 상속되도록 함
+@Retention : Anootation이 유지되는 범위 지정
+@Repeatable : Annotation을 반복해서 적용할 수 있도록 함
+
+@Override
+
+method 앞에만 붙일 수 있는 annotation
+같은 이름의 method가 조상에 있는지 확인하고 없으면 error message를 출력하여 실수를 방지
+
+```java
+class Parent {
+	void parentMethod() {
+
+	}
+}
+
+class Child extends Parent {
+	@Override
+	void parentmethod() {	// 오류 발생
+
+	}
+}
+```
+
+@Deprecated
+
+신기능으로 대체되었으나 기존 코드와의 호환성을 위해 남겨진 field / method를 사용하지 않도록 권할 때 사용
+compile시 경고 메시지가 나타난다.
+
+```java
+class NewClass {
+	int newField;
+
+	int getNewField() {
+		return newField;
+	}
+
+	@Deprecated
+	int oldField;
+
+	@Deprecated
+	int getOldField() {
+		return oldField;
+	}
+}
+
+class AnnotationEx2 {
+	public static void main(String[] args) {
+		NewClass nc = new NewClass();
+
+		nc.oldField = 10;						// @Deprecated가 붙은 대상 사용
+		System.out.println(nc.getOldField());	// @Deprecated가 붙은 대상 사용
+	}
+}
+```
+
+@FunctionalInterface
+
+함수형 interface 선언 시 붙이면 compiler가 함수형 interface를 바르게 선언했는지 확인하고 잘못된 경우 error를 발생시킴
+
+```java
+@FunctionalInterface
+public interface Runnable {
+	public abstract void run();
+}
+```
+
+@SuppressWarnings
+
+compiler가 보여주는 경고 메시지가 나타나지 않도록 억제
+주로 deprecation, unchecked, rawtypes, varargs 사용
+deprecation : @Deprecated가 붙은 대상을 사용해서 발생하는 경고
+unchecked : generics type을 지정하지 않았을 때 발생하는 경고
+rawtypes : generics를 사용하지 않아서 발생하는 경고
+varargs : 기변인자의 type이 generic type 일때 발생하는 경고
+
+```java
+@SuppressWarnings("unchecked")
+ArrayList list = new ArrayList();
+
+@SuppressWarnings({"deprecated", "unchecked", "varargs"})	// 여러 경고 동시에 억제
+```
+
+경고 메시지의 종류는 -Xlint option으로 compile시 나타나는 경고 중 []안의 내용이다.
+
+```java
+import java.util.ArrayList;
+
+class NewClass {
+	int newField;
+
+	int getNewField() {
+		return newField;
+	}
+
+	@Deprecated
+	int oldField;
+
+	@Deprecated
+	int getoldField() {
+		return oldField;
+	}
+}
+
+class AnnotationEx3 {
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args) {
+		NewClass nc = new NewClass();
+
+		nc.oldField = 10;							// @Deprecated가 붙은 대상을 사용
+		System.out.println(nc.getOldField());		// @Deprecated가 붙은 대상을 사용
+
+		@SuppressWarnings("unchecked")
+		ArrayList<NewClass> list = new ArrayList();	// type을 지정하지 않음
+		list.add(nc);
+	}
+}
+```
+
+main함수에 `@SuppressWarnings({"deprecation", "unchecked"})`를 붙여 전체 경고를 억제하도록 할 수 있으나 추후 수정시 발생하는 경고 역시 억제될 수 있으므로 해당하는 대상에만 붙여 경고를 억제하는 범위를 최소화 하는 것이 좋다.
+
+@SafeVarargs
+
+reifiable type : compile 후에도 제거되지 않는 타입
+non-reifiable type : compile 후에 제거되는 타입(generic type 등)
+method에 선언된 가변인자의 타입이 non-reifiable type일 경우 method 선언부와 method를 호출하는 부분에서 unchecked 경고가 발생
+unchecked 경고를 억제하기 위해 사용
+static 이나 final이 붙은 method / 생성자에만 붙일 수 있다.
+
+@SafeVarargs : method를 호출하는 곳에서 발생하는 경고도 억제
+@SuppressWarnings("varargs") : method선언부와 method를 호출하는 곳에서도 Annotation을 붙여야 함
+
+@SafeVarargs로 unchecked는 억제할 수 있지만 varargs는 억제할 수 없기 때문에 주로 @SuppressWarnings("varargs")를 같이 붙인다.
+
+```java
+import java.util.Arrays;
+
+class MyArrayList<T> {
+	T[] arr;
+
+	@SafeVarargs
+	@SuppressWarnings("varargs")
+	MyArrayList(T... arr) {
+		this.arr = arr;
+	}
+
+	@SafeVarargs
+//	@SuppressWarning("unchecked")
+	public static <T> MyArrayList<T> asList(T... a) {
+		return new MyArrayList<>(a);
+	}
+
+	public String toString() {
+		return Arrays.toString(arr);
+	}
+}
+
+class AnnotationEx4 {
+//	@SuppressWarnings("unchecked")
+	public static void main(String[] args) {
+		MyArrayList<String> list = MyArrayList.asList("1", "2", "3");
+
+		System.out.println(list);
+	}
+}
+```
+
+Meta Annotation
+
+Annotation을 위한 Annotation
+Annotation의 적용 대상(Target)이나 유지 기간(retention)등을 지정하는데 사용
+
+@Target
+
+Annotation이 적용 가능한 대상을 지정하는데 사용
+여러 개의 값을 지정할 때는 {}를 사용한다.
+
+```java
+@Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE})
+@Retention(RetentionPolicy.SOURCE)
+public @interface SuppressWarnings {
+	String[] value();
+}
+```
+
+@Target으로 지정할 수 있는 Annotation의 적용대상 종류
+
+ANNOTATION\_TYPE : Annotation
+CONSTRUCTOR : 생성자
+FIELD : field(멤버 변수, enum 상수)
+LOCAL\_VARIABLE : 지역변수
+METHOD : method
+PACKAGE : package
+PARAMETER : 매개변수
+TYPE : type(class, interface, enum)
+TYPE\_PARAMETER : type 매개변수
+TYPE\_USE : type이 사용되는 모든 곳
+
+TYPE은 type 자체를 선언할 때 사용 가능
+TYPE\_USE는 해당 type의 변수를 선언할 때 사용 가능
+FIELD는 기본형에, TYPE\_USE는 참조형에 사용된다.
+
+@Retention
+
+Annotation이 유지되는 기간을 지정
+
+Retention Policy의 종류
+
+SOURCE : source file에만 존재. class file에는 존재하지 않음
+CLASS : class file에 존재. 실행시에 사용 불가(default)
+RUNTIME : class file에 존재. 실행시에 사용 가능
+
+compiler가 사용하는 Annotation : SOURCE
+RUNTIME을 사용하면 프로그램 실행시 reflection을 통해 class file에 저장된 Annotation의 정보를 읽어서 처리 가능
+CLASS는 compiler가 Annotation의 정보를 class file에 저장할 수 있게 하지만 JVM에 로딩될때는 무시되어 실행 시 Annotation에 대한 정보를 얻을 수 없음
+
+@Documented
+
+Annotation에 대한 정보가 javadoc으로 작성한 문서에 포함되도록 함
+JAVA에서 제공하는 기본 Annotation 중 @Override 와 @SuppressWarnings를 제외하고는 모두 붙어있다.
+
+@Inherited
+
+해당 Annotation이 붙은 Annotation을 조상 class에 붙이면 그 Annotation이 자손 class에 상속되도록 함
+
+@Repeatable
+
+일반적으로 하나의 대상에는 한 종류의 Annotation을 한번만 붙이나 @Repeatable이 붙은 경우 여러 번 붙일 수 있다.
+같은 이름의 Annotation 여러 개가 하나의 대상에 적용될 수 있기 때문에 Annotation들을 하나로 묶어서 다룰 수 있는 Annotation을 추가로 정의해야한다.
+
+```java
+@interface ToDos {
+	ToDo[] value();
+}
+
+@Repeatable(ToDos.class)
+@interface ToDo {
+	String value();
+}
+```
+
+@Native
+
+native method : JVM이 설치된 OS의 method
+native method에 의해 참조되는 constant field(상수 필드)에 붙이는 Annotation
+
+Annotation type 정의
+
+interface를 정의하는 것과 동일하나 @를 앞에 붙인다.
+
+```java
+@interface annotationName {
+	type elementName();
+}
+```
+
+Annotation의 요소
+
+Annotation 내에 선언된 method
+반환값이 있고 매개변수는 없는 추상 method의 형태
+
+```java
+@interface TestInfo {
+	int count();
+	String testedBy();
+	String[] testTools();
+	TestType testType();	// enum TestType
+	DateTime testDate();	// 다른 Annotation(@DateTime) 포함 가능
+}
+
+@interface DateTime {
+	String yymmdd();
+	String hhmmss();
+}
+```
+
+상속을 통해 구현하지 않아도 상관없지만 Annotation을 적용할 때 요소들의 값을 지정해주어야 한다.
+
+```java
+@TestInfo(
+	count = 3, testedBy = "Kim",
+	testTools = {"JUnit", "AutoTester"},
+	testType = TestType.FIRST,
+	testDate = @DateTime(yymmdd = "160101", hhmmss = "235959")
+)
+public class NewClass { ... }
+```
+
+각 요소는 기본값을 가질 수 있으며, 기본값이 있는 경우 값을 지정하지 않으면 기본값이 사용된다.
+단, 기본값으로 null은 불가능하다.
+
+```java
+@interface TestInfo {
+	int count() default 1;
+}
+
+@TestInfo
+public class NewClass { ... }
+```
+
+Annotation 요소가 하나뿐이고 이름이 value이면 Annotation 적용 시 요소의 이름을 생략하고 값만 적을 수 있다.
+
+```java
+@interface TestInfo {
+	String value();
+}
+
+@TestInfo("passed")
+class NewClass { ... }
+```
+
+요소의 type이 배열인 경우 {}를 사용하여 여러 개의 값을 지정할 수 있다.
+
+```java
+@interface TestInfo {
+	String[] testTools();
+}
+
+@Test(testTools = {"JUnit", "AutoTester"})		// 값이 여러개인 경우
+@Test(testTools = "JUnit")						// 값이 하나면 {} 생략 가능
+@Test(testTools = {})							// 값이 없으면 {}가 반드시 필요
+```
+
+요소의 기본값을 지정할 때 괄호를 사용할 수 있다.
+
+```java
+@interface TestInfo {
+	String[] info() default {"aaa", "bbb"};		// 기본 값이 여러개인 경우
+	String[] info2() default "ccc";				// 기본 값이 하나인 경우 {} 생략 가능
+}
+
+@TestInfo
+@TestInfo(intfo2 = {})
+class NewClass { ...  }
+```
+
+요소의 타입이 배열일 때도 요소의 이름이 value이면 이름을 생략할 수 있다.
+
+java.lang.annotation.Annotation
+
+모든 Annotation의 조상
+Annotation은 상속이 허용되지 않아 명시적으로 조상으로 지정이 불가능하다.
+interface로 저장되어 있기 때문에 모든 Annotation 객체에 대해 equals(), hashCode(), toString()등을 호출 가능하다.
+
+```java
+package java.lang.annotation;
+
+public interface Annotation {
+	boolean equals(Object obj);
+	int hashCode();
+	String toString();
+
+	Class<? extends Annotation> annotationType();
+}
+```
+
+```java
+Class<Annotation> cls = AnnotationTest.class;
+Annotation[] annoArr = AnnotationTest.class.getAnnotations();
+
+for(Annotation a : annoArr) {
+	System.out.println("toString() : " + a.toString());
+	System.out.println("hashCode() : " + a.hashCode());
+	System.out.println("equals() : " + a.equals());
+	System.out.println("annotationType() : " + a.annotationType());
+}
+```
+
+Marker Annotation
+
+값을 지정할 필요가 없어 요소를 정의하지 않은 Annotation(Serializable, Cloneable 등)
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Override {}			// Marker Annotation
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Test {}				// Marker Annotation
+```
+
+Annotation 요소의 규칙
+
+- 요소의 type은 기본형, String, enum, Annotation, Class 만 허용된다.
+- () 안에 매개변수 선언 불가능
+- 예외 선언 불가능
+- 요소를 type 매개변수로 정의 불가능
+
+```java
+import java.lang.annotation.*;
+
+@Deprecated
+@SuppressWarnings("1111")		// 유효하지 않은 Annotation, 무시됨
+@TestInfo(testedBy = "aaa", testDate = @DateTime(yymmdd = "160101", hhmmss = "235959"))
+class AnnotationEx5 {
+	public static void main(String[] args) {
+		Class<AnnotationEx5> cls = AnnotationEx5.class;
+
+		TestInfo anno = (TestInfo)cls.getAnnotation(TestInfo.class);
+		System.out.println("anno.testedBy() = " + anno.testedBy());
+		System.out.println("anno.testDate().yymmdd() = " + anno.testDate().yymmdd());
+		System.out.println("anno.testDate().hhmmss() = " + anno.testDate().hhmmss());
+
+		for(String str : anno.testTools())
+			System.out.println("testTools = " + str);
+
+		System.out.println();
+
+		Annotation[] annoArr = cls.getAnnotations();
+
+		for(Annotation a : annoArr)
+			System.out.println(a);
+	}
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@interface TestInfo {
+	int count() default 1;
+	String testedBy();
+	String[] testTools() default "JUnit";
+	TestType testType() default TestType.FIRST;
+	DateTime testDate();
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@interface DateTime {
+	String yymmdd();
+	String hhmmss();
+}
+
+enum TestType {	FIRST, FINAL }
+```
