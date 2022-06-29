@@ -66,7 +66,7 @@ OS가 CPU의 자원을 어떤 Process에게 할당해 줄지 일정을 짜는 �
 
 먼저 온 것을 먼저 처리한다.
 
-Ready Queue가 존재하고, 도착한 순서대로 CPU에 할당한다. 순서대로 실행되므로 작업 완료 시간을 예측하기 쉽지만, 길게 실행되는 Process가 있다면 그 뒤에 오는 Process들은 모두 오래 기다리게 될 수 있다(convey effect).
+Ready Queue가 존재하고, 도착한 순서대로 CPU에 할당한다. 순서대로 실행되므로 작업 완료 시간을 예측하기 쉽지만, 길게 실행되는 Process가 있다면 그 뒤에 오는 Process들은 모두 오래 기다리게 될 수 있다(convoy effect).
 
 #### Shortest Job First
 
