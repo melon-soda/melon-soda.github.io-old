@@ -82,23 +82,23 @@ SJF에서의 Starvation 해결법 : 대기 시간이 길어지면 우선 순위�
 이 외에도 제한 시간, 기억 장소 요청량, 사용 파일 수, 프로세스의 중요성 등 다양한 요인에 의해 우선순위가 결정된다.<br>
 우선순위가 높으면 Ready Queue의 head에 들어가게 된다. 이 때 기존의 Process를 끝내고 다음 Process가 실행되면 비 선점형 Priority, 기존의 Process를 중지하고 새로 들어온 Process가 CPU를 선점하면 선점형 Priority로 구분된다.
 
-#### 선점형 방식
+### 선점형 방식
 
-##### Round Robin
+#### Round Robin
 
 FCFS + Time Quantum
 
 Time Quantum : Process 마다 CPU 사용 시간에 제한을 둔다. 제한 시간이 끝나면 해당 Process는 Ready Queue의 가장 뒤로 밀린다.<br>
 Time Quantum 이 너무 작으면 Context Switching이 자주 일어나고, 너무 크면 프로세스가 대부분 거의 다 실행되기에 FCFS와 다른게 없다.
 
-##### Shortest Remaining Time
+#### Shortest Remaining Time
 
 SJF의 선점형 버젼.
 
 현재 CPU를 점유중인 Process의 남은 처리 시간보다 짧은 Process가 들어오면 그 Process가 CPU를 점유한다.<br>
 평균 대기시간이 짧지만, 종료 시간이 예측하기 어렵고 기아 현상을 전혀 해결하지 못한다.
 
-##### 다단계 Queue
+#### 다단계 Queue
 
 우선순위를 가지는 Ready Queue 여러개를 사용한다.
 
